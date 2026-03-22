@@ -203,6 +203,15 @@
     <label>Telegram Bot Token</label><input id="cT" placeholder="8773809612:AAFGew...">
     <label>Telegram Chat ID</label><input id="cC" placeholder="1826017516">
     <label>Claude API Key</label><input id="cK" type="password" placeholder="sk-ant-api03-...">
+    <label>ElevenLabs API Key (เสียง AI)</label><input id="cE" placeholder="sk_... (ฟรี 10,000 ตัวอักษร/เดือน)">
+    <label>ElevenLabs Voice</label>
+    <select id="cV" style="width:100%;padding:7px;background:var(--glass);border:1px solid var(--border);border-radius:5px;color:#E8F0F8;font-family:'Share Tech Mono';font-size:11px;margin-top:3px">
+      <option value="JBFqnCBsd6RMkjVDRZzb">George (ผู้ชาย นุ่ม)</option>
+      <option value="TX3LPaxmHKxFdv7VOQHJ">Liam (ผู้ชาย ชัด)</option>
+      <option value="EXAVITQu4vr4xnSDxMaL">Sarah (ผู้หญิง นุ่ม)</option>
+      <option value="XB0fDUnXU5powFXDhCwa">Charlotte (ผู้หญิง สง่า)</option>
+      <option value="onwK4e9ZLuTAKqWW03F9">Daniel (ผู้ชาย JARVIS)</option>
+    </select>
     <label>Auto-refresh (วินาที)</label><input id="cR" placeholder="10" value="10">
     <div class="md-b"><button class="b-cn" onclick="hideCfg()">CANCEL</button><button class="b-sv" onclick="saveCfg()">SAVE</button></div>
   </div>
@@ -213,9 +222,9 @@ let CFG=JSON.parse(localStorage.getItem('axis2')||'{}');
 let tgOffset=0, tgMsgs=[], lastSigData={};
 
 // Config
-function showCfg(){document.getElementById('cfgM').classList.add('show');document.getElementById('cT').value=CFG.token||'';document.getElementById('cC').value=CFG.chatId||'';document.getElementById('cK').value=CFG.apiKey||'';document.getElementById('cR').value=CFG.refresh||'10'}
+function showCfg(){document.getElementById('cfgM').classList.add('show');document.getElementById('cT').value=CFG.token||'';document.getElementById('cC').value=CFG.chatId||'';document.getElementById('cK').value=CFG.apiKey||'';document.getElementById('cE').value=CFG.elevenKey||'';document.getElementById('cV').value=CFG.elevenVoice||'onwK4e9ZLuTAKqWW03F9';document.getElementById('cR').value=CFG.refresh||'10'}
 function hideCfg(){document.getElementById('cfgM').classList.remove('show')}
-function saveCfg(){CFG={token:document.getElementById('cT').value,chatId:document.getElementById('cC').value,apiKey:document.getElementById('cK').value,refresh:document.getElementById('cR').value||'10'};localStorage.setItem('axis2',JSON.stringify(CFG));hideCfg();addJ('⚙️ Config saved! Telegram + AI พร้อมใช้งาน');startPolling()}
+function saveCfg(){CFG={token:document.getElementById('cT').value,chatId:document.getElementById('cC').value,apiKey:document.getElementById('cK').value,elevenKey:document.getElementById('cE').value,elevenVoice:document.getElementById('cV').value||'onwK4e9ZLuTAKqWW03F9',refresh:document.getElementById('cR').value||'10'};localStorage.setItem('axis2',JSON.stringify(CFG));hideCfg();addJ('⚙️ Config saved! '+(CFG.elevenKey?'🎤 ElevenLabs Voice ON!':'🔊 Browser Voice'));startPolling()}
 
 // Clock
 setInterval(()=>{const n=new Date();document.getElementById('clk').textContent=n.toLocaleTimeString('en-GB')+' '+n.toLocaleDateString('th-TH')},1000);
@@ -365,7 +374,62 @@ function togVoice(){
   recog.onend=()=>stopV();recog.onerror=()=>stopV();recog.start();
 }
 function stopV(){isListen=false;document.getElementById('vOrb').classList.remove('on');document.getElementById('vBtn').classList.remove('active');if(recog)recog.stop()}
-function speak(t){if(!('speechSynthesis' in window)||!t)return;const u=new SpeechSynthesisUtterance(t.substring(0,150));u.lang='th-TH';u.rate=1.1;u.pitch=0.9;speechSynthesis.speak(u)}
+// ═══════════════════════════════════════════════════════════
+// VOICE OUTPUT — ElevenLabs AI (เสียงเหมือนคนจริง) + Fallback
+// ═══════════════════════════════════════════════════════════
+let audioQueue=[], isPlaying=false;
+
+async function speak(text){
+  if(!text)return;
+  const clean=text.replace(/<[^>]*>/g,'').replace(/[•\-━═┌│└┐┘]/g,'').substring(0,300);
+  if(clean.length<3)return;
+
+  // ── ElevenLabs (ถ้ามี key) ──
+  if(CFG.elevenKey){
+    try{
+      const voiceId=CFG.elevenVoice||'onwK4e9ZLuTAKqWW03F9';
+      const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','xi-api-key':CFG.elevenKey},
+        body:JSON.stringify({
+          text:clean,
+          model_id:'eleven_multilingual_v2',
+          voice_settings:{stability:0.5,similarity_boost:0.75,style:0.3,use_speaker_boost:true}
+        })
+      });
+      if(res.ok){
+        const blob=await res.blob();
+        const url=URL.createObjectURL(blob);
+        playAudio(url);
+        return;
+      }
+    }catch(e){console.warn('ElevenLabs:',e)}
+  }
+
+  // ── Fallback: Browser TTS (ปรับให้นุ่มขึ้น) ──
+  if('speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(clean.substring(0,150));
+    u.lang='th-TH';u.rate=0.95;u.pitch=0.85;u.volume=0.9;
+    // หาเสียงไทยที่ดีที่สุด
+    const voices=speechSynthesis.getVoices();
+    const thVoice=voices.find(v=>v.lang.includes('th'))||voices.find(v=>v.lang.includes('en')&&v.name.includes('Google'));
+    if(thVoice)u.voice=thVoice;
+    speechSynthesis.speak(u);
+  }
+}
+
+function playAudio(url){
+  audioQueue.push(url);
+  if(!isPlaying)playNext();
+}
+function playNext(){
+  if(audioQueue.length===0){isPlaying=false;return}
+  isPlaying=true;
+  const audio=new Audio(audioQueue.shift());
+  audio.onended=()=>playNext();
+  audio.onerror=()=>playNext();
+  audio.play().catch(()=>playNext());
+}
 
 // ═══════════════════════════════════════════════════════════
 // INIT
