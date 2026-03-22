@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A.X.I.S — Alpha-X Intelligence System</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--arc:#00D4FF;--arc2:#0088CC;--arc3:#004466;--gold:#FFB800;--red:#FF4560;--green:#00C896;--bg:#020408;--bg2:#060C14;--glass:rgba(0,212,255,0.04);--border:rgba(0,212,255,0.15)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:#C8D8E8;font-family:'Rajdhani',sans-serif;overflow:hidden;height:100vh}
+.reactor-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;opacity:0.05;pointer-events:none;z-index:0}
+.rr{position:absolute;border:1px solid var(--arc);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+.r1{width:100%;height:100%;animation:sp 60s linear infinite}.r2{width:70%;height:70%;animation:sp 40s linear infinite reverse;border-style:dashed}.r3{width:40%;height:40%;animation:sp 25s linear infinite}
+@keyframes sp{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+.app{display:grid;grid-template-columns:260px 1fr 280px;grid-template-rows:52px 1fr 56px;height:100vh;gap:1px;position:relative;z-index:1}
+.hdr{grid-column:1/-1;background:linear-gradient(180deg,rgba(0,212,255,0.08),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px}
+.lp{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:12px}
+.mp{background:var(--bg);display:flex;flex-direction:column;position:relative}
+.rp{background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;padding:12px}
+.bb{grid-column:1/-1;background:var(--bg2);border-top:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:10px}
+
+.logo{font-family:'Orbitron';font-weight:900;font-size:20px;color:var(--arc);letter-spacing:5px;text-shadow:0 0 20px rgba(0,212,255,0.4)}
+.logo sub{font-size:9px;color:var(--gold);letter-spacing:1px;font-weight:400}
+.pills{display:flex;gap:6px;margin-left:auto}.pill-s{padding:3px 10px;border-radius:16px;font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;border:1px solid}
+.p-on{border-color:var(--green);color:var(--green);background:rgba(0,200,150,0.1)}.p-arc{border-color:var(--arc);color:var(--arc);background:rgba(0,212,255,0.1)}
+.clk{font-family:'Share Tech Mono';font-size:10px;color:var(--arc)}
+
+.st{font-family:'Orbitron';font-size:8px;letter-spacing:3px;color:rgba(0,212,255,0.4);margin:10px 0 8px;text-transform:uppercase}
+.mc{background:var(--glass);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;transition:all .3s;cursor:pointer}
+.mc:hover{border-color:var(--arc);background:rgba(0,212,255,0.06)}
+.mc .sy{font-family:'Orbitron';font-size:10px;color:var(--gold)}.mc .pr{font-family:'Share Tech Mono';font-size:16px;color:#E8F0F8;margin:2px 0}.mc .ch{font-family:'Share Tech Mono';font-size:10px}
+.up{color:var(--green)}.dn{color:var(--red)}
+.sb{display:inline-block;padding:2px 7px;border-radius:3px;font-size:8px;font-family:'Share Tech Mono';margin:1px;border:1px solid var(--border);background:var(--glass);color:var(--green)}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2)}
+.tab{flex:1;padding:8px;text-align:center;font-family:'Orbitron';font-size:9px;letter-spacing:2px;color:rgba(200,216,232,0.4);cursor:pointer;border-bottom:2px solid transparent;transition:all .3s}
+.tab.active{color:var(--arc);border-bottom-color:var(--arc);background:rgba(0,212,255,0.05)}
+.tab-content{display:none;flex:1;overflow-y:auto;padding:16px}.tab-content.active{display:flex;flex-direction:column}
+
+/* Chat */
+.cc{flex:1;overflow-y:auto;padding-right:6px}.cc::-webkit-scrollbar{width:3px}.cc::-webkit-scrollbar-thumb{background:var(--arc3);border-radius:3px}
+.msg{margin-bottom:12px;animation:fs .3s ease}@keyframes fs{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.mj{}.mu{padding-left:50px;text-align:right}
+.mb{display:inline-block;max-width:88%;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.7;text-align:left}
+.mj .mb{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,136,204,0.03));border:1px solid var(--border);border-left:2px solid var(--arc)}
+.mu .mb{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-right:2px solid var(--gold)}
+.ml{font-family:'Orbitron';font-size:7px;letter-spacing:2px;margin-bottom:3px}.mj .ml{color:var(--arc)}.mu .ml{color:var(--gold)}
+
+/* Telegram Feed */
+.tg-msg{background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px;line-height:1.6;animation:fs .3s ease}
+.tg-msg .tg-time{font-family:'Share Tech Mono';font-size:9px;color:var(--arc);margin-bottom:4px}
+.tg-msg b{color:var(--gold)}
+.tg-new{border-left:3px solid var(--green)}
+
+/* Voice Orb */
+.vo-c{display:flex;justify-content:center;padding:12px 0}
+.vo{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,var(--arc),var(--arc3));cursor:pointer;position:relative;transition:all .3s;box-shadow:0 0 25px rgba(0,212,255,0.2)}
+.vo:hover{box-shadow:0 0 40px rgba(0,212,255,0.4);transform:scale(1.05)}
+.vo.on{animation:po 1.5s ease-in-out infinite;box-shadow:0 0 50px rgba(255,69,96,0.5);background:radial-gradient(circle,var(--red),#440000)}
+@keyframes po{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.vo::after{content:'🎤';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px}.vo.on::after{content:'🔴'}
+
+/* Input */
+.ci{flex:1;background:var(--glass);border:1px solid var(--border);border-radius:6px;padding:10px 14px;color:#E8F0F8;font-family:'Rajdhani';font-size:14px;outline:none}
+.ci:focus{border-color:var(--arc);box-shadow:0 0 15px rgba(0,212,255,0.1)}.ci::placeholder{color:rgba(200,216,232,0.25)}
+.sbtn{background:linear-gradient(135deg,var(--arc),var(--arc2));border:none;border-radius:6px;padding:10px 16px;color:#000;font-family:'Orbitron';font-size:10px;font-weight:700;cursor:pointer;letter-spacing:2px}
+.vb{background:var(--glass);border:1px solid var(--border);border-radius:6px;padding:10px;cursor:pointer;font-size:16px}.vb.active{border-color:var(--red);background:rgba(255,69,96,0.1)}
+
+/* Right Panel */
+.asc{background:var(--glass);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px}
+.asc .al{font-family:'Orbitron';font-size:7px;letter-spacing:2px;color:rgba(0,212,255,0.4)}.asc .av{font-family:'Share Tech Mono';font-size:13px;margin-top:3px}
+.sgb{padding:3px 10px;border-radius:3px;font-family:'Orbitron';font-size:11px;font-weight:700;display:inline-block}
+.sg-s{background:rgba(255,69,96,0.15);color:var(--red);border:1px solid var(--red)}.sg-b{background:rgba(0,200,150,0.15);color:var(--green);border:1px solid var(--green)}.sg-w{background:rgba(255,184,0,0.15);color:var(--gold);border:1px solid var(--gold)}
+
+.scan{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--arc),transparent);animation:sc 5s linear infinite;opacity:0.2;pointer-events:none}
+@keyframes sc{0%{top:0}100%{top:100%}}
+
+/* Config */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:none;justify-content:center;align-items:center}.mo.show{display:flex}
+.md{background:var(--bg2);border:1px solid var(--arc);border-radius:10px;padding:20px;width:420px;max-height:80vh;overflow-y:auto}
+.md h2{font-family:'Orbitron';color:var(--arc);font-size:12px;letter-spacing:3px;margin-bottom:14px}
+.md label{display:block;font-size:10px;color:rgba(200,216,232,0.5);margin-top:10px;font-family:'Share Tech Mono'}
+.md input{width:100%;padding:7px 10px;background:var(--glass);border:1px solid var(--border);border-radius:5px;color:#E8F0F8;font-family:'Share Tech Mono';font-size:11px;margin-top:3px;outline:none}
+.md input:focus{border-color:var(--arc)}
+.md-b{display:flex;gap:8px;margin-top:16px}.md-b button{flex:1;padding:8px;border-radius:5px;font-family:'Orbitron';font-size:9px;letter-spacing:2px;cursor:pointer;border:1px solid}
+.b-sv{background:var(--arc);color:#000;border-color:var(--arc)}.b-cn{background:transparent;color:var(--red);border-color:var(--red)}
+
+.lp::-webkit-scrollbar,.rp::-webkit-scrollbar{width:3px}.lp::-webkit-scrollbar-thumb,.rp::-webkit-scrollbar-thumb{background:var(--arc3);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="reactor-bg"><div class="rr r1"></div><div class="rr r2"></div><div class="rr r3"></div></div>
+
+<div class="app">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="logo">A.X.I.S<sub>v2 — Jarvis Mode</sub></div>
+    <div class="pills">
+      <span class="pill-s p-on" id="stPill">● ONLINE</span>
+      <span class="pill-s p-arc" id="tgPill">TG ●</span>
+      <span class="pill-s p-arc" id="m5Pill">MT5 ●</span>
+    </div>
+    <div class="clk" id="clk"></div>
+    <button style="background:none;border:1px solid var(--border);border-radius:5px;padding:5px 10px;color:var(--arc);cursor:pointer;font-size:11px" onclick="showCfg()">⚙️</button>
+  </div>
+
+  <!-- Left Panel -->
+  <div class="lp">
+    <div class="st">📊 Market Live</div>
+    <div class="mc"><div class="sy">🏆 XAU/USD</div><div class="pr" id="gP">—</div><div class="ch" id="gC">—</div></div>
+    <div class="mc"><div class="sy">₿ BTC/USD</div><div class="pr" id="bP">—</div><div class="ch" id="bC">—</div></div>
+    <div class="mc"><div class="sy">💵 DXY</div><div class="pr" id="dP">—</div><div class="ch" id="dC">—</div></div>
+    <div class="mc"><div class="sy">📊 VIX</div><div class="pr" id="vP">—</div><div class="ch" id="vC">—</div></div>
+
+    <div class="st" style="margin-top:14px">🧠 Skills 16</div>
+    <div id="skL"></div>
+
+    <div class="st" style="margin-top:14px">📡 Telegram Feed</div>
+    <div id="tgFeed" style="max-height:200px;overflow-y:auto"></div>
+  </div>
+
+  <!-- Main -->
+  <div class="mp">
+    <div class="scan"></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('chat')">💬 CHAT</div>
+      <div class="tab" onclick="switchTab('tg')">📡 TELEGRAM</div>
+      <div class="tab" onclick="switchTab('dash')">📊 DASHBOARD</div>
+    </div>
+
+    <!-- Tab: Chat -->
+    <div class="tab-content active" id="tabChat">
+      <div class="cc" id="chatC">
+        <div class="msg mj"><div class="ml">A.X.I.S</div><div class="mb">
+          สวัสดีครับ CEO 👋 ผมคือ <b>A.X.I.S v2</b><br><br>
+          🎤 <b>พูดสั่งงาน</b> หรือ 💬 <b>พิมพ์</b><br>
+          📡 <b>Telegram</b> — อ่าน+ส่งข้อความ<br>
+          📊 <b>Dashboard</b> — ดู MT5 + Skills live<br><br>
+          <i style="color:var(--arc)">ตั้งค่า ⚙️ → ใส่ Token + API Key</i>
+        </div></div>
+      </div>
+      <div class="vo-c"><div class="vo" id="vOrb" onclick="togVoice()"></div></div>
+    </div>
+
+    <!-- Tab: Telegram -->
+    <div class="tab-content" id="tabTg">
+      <div class="cc" id="tgChat"></div>
+    </div>
+
+    <!-- Tab: Dashboard -->
+    <div class="tab-content" id="tabDash">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px">
+        <div class="asc"><div class="al">BALANCE</div><div class="av" id="dBal" style="color:var(--gold);font-size:20px">—</div></div>
+        <div class="asc"><div class="al">EQUITY</div><div class="av" id="dEq" style="font-size:20px">—</div></div>
+        <div class="asc"><div class="al">DAILY PNL</div><div class="av" id="dPnl">—</div></div>
+        <div class="asc"><div class="al">POSITIONS</div><div class="av" id="dPos">—</div></div>
+        <div class="asc" style="grid-column:span 2"><div class="al">DRL ENSEMBLE</div><div class="av" id="dDrl">—</div></div>
+        <div class="asc"><div class="al">TURBULENCE</div><div class="av" id="dTurb">—</div></div>
+        <div class="asc"><div class="al">NEWS RISK</div><div class="av" id="dNews">—</div></div>
+        <div class="asc" style="grid-column:span 2"><div class="al">REGIME</div><div class="av" id="dReg">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="rp">
+    <div class="st">🎯 AI Signal</div>
+    <div class="asc"><div class="al">SIGNAL</div><div class="av"><span class="sgb sg-w" id="sigB">WAIT ⏳</span></div></div>
+    <div class="asc"><div class="al">SCORE</div><div class="av" id="sigSc">—</div></div>
+    <div class="asc"><div class="al">ENTRY / SL / TP</div><div class="av" id="sigSetup" style="font-size:10px;line-height:1.8">—</div></div>
+    <div class="asc"><div class="al">DRL</div><div class="av" id="sigDrl" style="font-size:10px">—</div></div>
+    <div class="asc"><div class="al">TURB</div><div class="av" id="sigTurb">—</div></div>
+    <div class="asc"><div class="al">BALANCE</div><div class="av" style="color:var(--gold)" id="sigBal">—</div></div>
+    <div class="asc"><div class="al">PNL</div><div class="av" id="sigPnl">—</div></div>
+
+    <div class="st" style="margin-top:10px">⚡ Quick Commands</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+      <button class="sb" onclick="qc('/status')">📊 Status</button>
+      <button class="sb" onclick="qc('/pnl')">💰 PnL</button>
+      <button class="sb" onclick="qc('/news')">📡 News</button>
+      <button class="sb" onclick="qc('/orders')">📋 Orders</button>
+      <button class="sb" onclick="qc('/skills')">🧠 Skills</button>
+      <button class="sb" onclick="qc('/help')">❓ Help</button>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="bb">
+    <button class="vb" id="vBtn" onclick="togVoice()">🎤</button>
+    <input class="ci" id="cIn" placeholder="สั่งงาน A.X.I.S... (พิมพ์หรือพูด)" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="sbtn" onclick="sendMsg()">SEND</button>
+    <button class="sbtn" style="background:rgba(255,184,0,0.2);color:var(--gold);border:1px solid var(--gold)" onclick="sendToTg()">📡 TG</button>
+  </div>
+</div>
+
+<!-- Config -->
+<div class="mo" id="cfgM">
+  <div class="md">
+    <h2>⚙️ A.X.I.S CONFIG</h2>
+    <label>Telegram Bot Token</label><input id="cT" placeholder="8773809612:AAFGew...">
+    <label>Telegram Chat ID</label><input id="cC" placeholder="1826017516">
+    <label>Claude API Key</label><input id="cK" type="password" placeholder="sk-ant-api03-...">
+    <label>ElevenLabs API Key (เสียง AI)</label><input id="cE" placeholder="sk_... (ฟรี 10,000 ตัวอักษร/เดือน)">
+    <label>ElevenLabs Voice</label>
+    <select id="cV" style="width:100%;padding:7px;background:var(--glass);border:1px solid var(--border);border-radius:5px;color:#E8F0F8;font-family:'Share Tech Mono';font-size:11px;margin-top:3px">
+      <option value="JBFqnCBsd6RMkjVDRZzb">George (ผู้ชาย นุ่ม)</option>
+      <option value="TX3LPaxmHKxFdv7VOQHJ">Liam (ผู้ชาย ชัด)</option>
+      <option value="EXAVITQu4vr4xnSDxMaL">Sarah (ผู้หญิง นุ่ม)</option>
+      <option value="XB0fDUnXU5powFXDhCwa">Charlotte (ผู้หญิง สง่า)</option>
+      <option value="onwK4e9ZLuTAKqWW03F9">Daniel (ผู้ชาย JARVIS)</option>
+    </select>
+    <label>Auto-refresh (วินาที)</label><input id="cR" placeholder="10" value="10">
+    <div class="md-b"><button class="b-cn" onclick="hideCfg()">CANCEL</button><button class="b-sv" onclick="saveCfg()">SAVE</button></div>
+  </div>
+</div>
+
+<script>
+let CFG=JSON.parse(localStorage.getItem('axis2')||'{}');
+let tgOffset=0, tgMsgs=[], lastSigData={};
+
+// Config
+function showCfg(){document.getElementById('cfgM').classList.add('show');document.getElementById('cT').value=CFG.token||'';document.getElementById('cC').value=CFG.chatId||'';document.getElementById('cK').value=CFG.apiKey||'';document.getElementById('cE').value=CFG.elevenKey||'';document.getElementById('cV').value=CFG.elevenVoice||'onwK4e9ZLuTAKqWW03F9';document.getElementById('cR').value=CFG.refresh||'10'}
+function hideCfg(){document.getElementById('cfgM').classList.remove('show')}
+function saveCfg(){CFG={token:document.getElementById('cT').value,chatId:document.getElementById('cC').value,apiKey:document.getElementById('cK').value,elevenKey:document.getElementById('cE').value,elevenVoice:document.getElementById('cV').value||'onwK4e9ZLuTAKqWW03F9',refresh:document.getElementById('cR').value||'10'};localStorage.setItem('axis2',JSON.stringify(CFG));hideCfg();addJ('⚙️ Config saved! '+(CFG.elevenKey?'🎤 ElevenLabs Voice ON!':'🔊 Browser Voice'));startPolling()}
+
+// Clock
+setInterval(()=>{const n=new Date();document.getElementById('clk').textContent=n.toLocaleTimeString('en-GB')+' '+n.toLocaleDateString('th-TH')},1000);
+
+// Skills
+const skills=['📐Tech','🏦SM','🌊Sweep','🎯Kelly','🌍Env','📅Cal','📰News','🫧Bubble','🌐Regime','⚖️Review','✂️Split','💨Slip','📉Risk','📊Quality','🤖DRL','🌪️Turb'];
+document.getElementById('skL').innerHTML=skills.map(s=>`<span class="sb">${s}</span>`).join('');
+
+// Tabs
+function switchTab(t){document.querySelectorAll('.tab').forEach((e,i)=>e.classList.toggle('active',['chat','tg','dash'][i]===t));document.querySelectorAll('.tab-content').forEach((e,i)=>e.classList.toggle('active',['tabChat','tabTg','tabDash'][i]===('tab'+t.charAt(0).toUpperCase()+t.slice(1))))}
+function switchTab(t){const ids={chat:'tabChat',tg:'tabTg',dash:'tabDash'};document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));document.getElementById(ids[t]).classList.add('active');document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));event.target.classList.add('active')}
+
+// Chat
+function addJ(t){const c=document.getElementById('chatC');c.innerHTML+=`<div class="msg mj"><div class="ml">A.X.I.S</div><div class="mb">${t}</div></div>`;c.scrollTop=c.scrollHeight;speak(t.replace(/<[^>]*>/g,'').substring(0,200))}
+function addU(t){const c=document.getElementById('chatC');c.innerHTML+=`<div class="msg mu"><div class="ml">CEO</div><div class="mb">${t}</div></div>`;c.scrollTop=c.scrollHeight}
+function qc(cmd){document.getElementById('cIn').value=cmd;sendMsg()}
+
+async function sendMsg(){
+  const inp=document.getElementById('cIn'),t=inp.value.trim();if(!t)return;inp.value='';addU(t);
+  const r=await processCmd(t);setTimeout(()=>addJ(r),400);
+}
+
+// Send to Telegram
+async function sendToTg(){
+  const t=document.getElementById('cIn').value.trim();if(!t||!CFG.token||!CFG.chatId)return addJ('⚠️ ตั้งค่า Telegram ก่อนใน ⚙️');
+  document.getElementById('cIn').value='';addU('📡 TG: '+t);
+  try{
+    await fetch(`https://api.telegram.org/bot${CFG.token}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CFG.chatId,text:t,parse_mode:'HTML'})});
+    addJ('✅ ส่ง Telegram แล้ว!');
+  }catch(e){addJ('❌ Telegram error: '+e.message)}
+}
+
+// Process
+async function processCmd(text){
+  const l=text.toLowerCase();
+  if(l.includes('สถานะ')||l==='/status')return fmtStatus();
+  if(l.includes('ข่าว')||l==='/news')return '📡 <b>News</b> — ดูใน Telegram Feed (ซ้ายล่าง)<br>หรือพิมพ์คำถามเช่น "วิเคราะห์ทองวันนี้"';
+  if(l==='/pnl'||l.includes('กำไร'))return fmtPnl();
+  if(l==='/skills'||l.includes('skill'))return fmtSkills();
+  if(l==='/orders'||l.includes('order'))return '📋 <b>CEO Orders</b><br>ส่งคำสั่งใหม่: พิมพ์แล้วกด 📡 TG<br>เช่น "/set ห้าม BUY วันนี้"';
+  if(l==='/help'||l.includes('help')||l.includes('ช่วย'))return fmtHelp();
+  // AI via Claude
+  if(CFG.apiKey){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':CFG.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'คุณคือ A.X.I.S — AI Trading Assistant แบบ JARVIS สำหรับ Gold/BTC ตอบภาษาไทย กระชับ ใช้ emoji มีข้อมูล: '+JSON.stringify(lastSigData).substring(0,500),messages:[{role:'user',content:text}]})});
+      const d=await res.json();return d.content[0].text.replace(/\n/g,'<br>');
+    }catch(e){return '⚠️ AI: '+e.message}
+  }
+  return '🤖 ตั้งค่า API Key ใน ⚙️ เพื่อให้ AI ตอบ<br>หรือลอง: สถานะ, /pnl, /skills, /help';
+}
+
+function fmtStatus(){return `📊 <b>A.X.I.S Status</b><br>💰 Balance: ${lastSigData.balance||'—'}<br>📊 Signal: ${lastSigData.signal||'—'} Score:${lastSigData.score||'—'}<br>🤖 DRL: ${lastSigData.drl_action||'—'} (${lastSigData.drl_confidence||0}%)<br>🌪️ Turb: ${lastSigData.turbulence||0}<br>🌐 Regime: ${lastSigData.regime||'—'}<br>📡 TG Messages: ${tgMsgs.length}`}
+function fmtPnl(){return `💰 <b>PnL</b><br>ดูข้อมูลล่าสุดใน Dashboard tab 📊<br>หรือพิมพ์ "/pnl" แล้วกด 📡 TG`}
+function fmtSkills(){return '🧠 <b>16 Skills Active</b><br>'+skills.map((s,i)=>`${i+1}. ${s} ✅`).join('<br>')}
+function fmtHelp(){return `🤖 <b>A.X.I.S Commands</b><br><br>📊 "สถานะ" — ดูระบบ<br>💰 "/pnl" — กำไร<br>🧠 "/skills" — Skills<br>📋 "/orders" — คำสั่ง CEO<br>📡 กด TG ส่ง Telegram<br>🎤 กดไมค์พูด<br>❓ ถามอะไรก็ได้ → AI ตอบ`}
+
+// ═══════════════════════════════════════════════════════════
+// TELEGRAM POLLING — อ่านข้อความทุก N วินาที
+// ═══════════════════════════════════════════════════════════
+let pollTimer=null;
+function startPolling(){if(pollTimer)clearInterval(pollTimer);if(!CFG.token)return;pollTg();pollTimer=setInterval(pollTg,(parseInt(CFG.refresh)||10)*1000);document.getElementById('tgPill').style.borderColor='var(--green)';document.getElementById('tgPill').style.color='var(--green)'}
+
+async function pollTg(){
+  if(!CFG.token)return;
+  try{
+    const r=await fetch(`https://api.telegram.org/bot${CFG.token}/getUpdates?offset=${tgOffset}&limit=20&timeout=1`);
+    const d=await r.json();
+    if(!d.ok)return;
+    for(const u of d.result){
+      tgOffset=u.update_id+1;
+      const m=u.message;if(!m||!m.text)continue;
+      const time=new Date(m.date*1000).toLocaleTimeString('en-GB');
+      const isNew=Date.now()/1000-m.date<60;
+      const html=m.text.replace(/</g,'&lt;').replace(/\n/g,'<br>');
+
+      // Add to feed
+      const entry={time,text:html,isNew};
+      tgMsgs.unshift(entry);if(tgMsgs.length>50)tgMsgs.pop();
+
+      // Parse signal data from bot messages
+      parseSignalFromTg(m.text);
+    }
+    renderTgFeed();
+  }catch(e){console.warn('TG:',e)}
+}
+
+function renderTgFeed(){
+  // Left panel feed (compact)
+  const feed=document.getElementById('tgFeed');
+  feed.innerHTML=tgMsgs.slice(0,8).map(m=>`<div class="tg-msg${m.isNew?' tg-new':''}"><div class="tg-time">${m.time}</div>${m.text.substring(0,120)}${m.text.length>120?'...':''}</div>`).join('');
+
+  // Tab: Telegram (full)
+  const tgC=document.getElementById('tgChat');
+  tgC.innerHTML=tgMsgs.slice(0,30).map(m=>`<div class="tg-msg${m.isNew?' tg-new':''}"><div class="tg-time">${m.time}</div>${m.text}</div>`).join('');
+  tgC.scrollTop=0;
+}
+
+// Parse signal data from Telegram messages
+function parseSignalFromTg(text){
+  if(text.includes('Alpha-X')){
+    if(text.includes('BUY'))updateSignal('BUY');
+    else if(text.includes('SELL'))updateSignal('SELL');
+  }
+  // Parse price
+  const priceM=text.match(/\$([0-9,]+\.\d+)/);
+  if(priceM)lastSigData.price=priceM[1];
+  // Parse score
+  const scoreM=text.match(/Score:\s*(\d+)/);
+  if(scoreM)lastSigData.score=scoreM[1];
+  // Parse DRL
+  const drlM=text.match(/DRL:\s*(\w+)\s*\((\d+)%\)/);
+  if(drlM){lastSigData.drl_action=drlM[1];lastSigData.drl_confidence=drlM[2]}
+  // Parse Turb
+  const turbM=text.match(/Turb:\s*([\d.]+)/);
+  if(turbM)lastSigData.turbulence=turbM[1];
+  // Update panels
+  updatePanels();
+}
+
+function updateSignal(sig){
+  const b=document.getElementById('sigB');
+  b.textContent=sig+(sig==='BUY'?' 📈':sig==='SELL'?' 📉':' ⏳');
+  b.className='sgb '+(sig==='BUY'?'sg-b':sig==='SELL'?'sg-s':'sg-w');
+  lastSigData.signal=sig;
+}
+
+function updatePanels(){
+  const s=lastSigData;
+  if(s.score)document.getElementById('sigSc').textContent=s.score+'/100';
+  if(s.drl_action){document.getElementById('sigDrl').innerHTML=`🗳️ ${s.drl_action} (${s.drl_confidence||0}%)`; document.getElementById('dDrl').innerHTML=`🗳️ ${s.drl_action} (${s.drl_confidence||0}%)`}
+  if(s.turbulence){document.getElementById('sigTurb').textContent=s.turbulence;document.getElementById('dTurb').textContent=s.turbulence}
+  if(s.regime)document.getElementById('dReg').textContent=s.regime;
+  if(s.price)document.getElementById('gP').textContent='$'+s.price;
+}
+
+// ═══════════════════════════════════════════════════════════
+// VOICE
+// ═══════════════════════════════════════════════════════════
+let recog=null,isListen=false;
+function togVoice(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){addJ('⚠️ ใช้ Chrome');return}
+  if(isListen){stopV();return}
+  const S=window.SpeechRecognition||window.webkitSpeechRecognition;recog=new S();recog.lang='th-TH';recog.continuous=false;
+  recog.onstart=()=>{isListen=true;document.getElementById('vOrb').classList.add('on');document.getElementById('vBtn').classList.add('active')};
+  recog.onresult=(e)=>{document.getElementById('cIn').value=e.results[0][0].transcript;sendMsg()};
+  recog.onend=()=>stopV();recog.onerror=()=>stopV();recog.start();
+}
+function stopV(){isListen=false;document.getElementById('vOrb').classList.remove('on');document.getElementById('vBtn').classList.remove('active');if(recog)recog.stop()}
+// ═══════════════════════════════════════════════════════════
+// VOICE OUTPUT — ElevenLabs AI (เสียงเหมือนคนจริง) + Fallback
+// ═══════════════════════════════════════════════════════════
+let audioQueue=[], isPlaying=false;
+
+async function speak(text){
+  if(!text)return;
+  const clean=text.replace(/<[^>]*>/g,'').replace(/[•\-━═┌│└┐┘]/g,'').substring(0,300);
+  if(clean.length<3)return;
+
+  // ── ElevenLabs (ถ้ามี key) ──
+  if(CFG.elevenKey){
+    try{
+      const voiceId=CFG.elevenVoice||'onwK4e9ZLuTAKqWW03F9';
+      const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','xi-api-key':CFG.elevenKey},
+        body:JSON.stringify({
+          text:clean,
+          model_id:'eleven_multilingual_v2',
+          voice_settings:{stability:0.5,similarity_boost:0.75,style:0.3,use_speaker_boost:true}
+        })
+      });
+      if(res.ok){
+        const blob=await res.blob();
+        const url=URL.createObjectURL(blob);
+        playAudio(url);
+        return;
+      }
+    }catch(e){console.warn('ElevenLabs:',e)}
+  }
+
+  // ── Fallback: Browser TTS (ปรับให้นุ่มขึ้น) ──
+  if('speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(clean.substring(0,150));
+    u.lang='th-TH';u.rate=0.95;u.pitch=0.85;u.volume=0.9;
+    // หาเสียงไทยที่ดีที่สุด
+    const voices=speechSynthesis.getVoices();
+    const thVoice=voices.find(v=>v.lang.includes('th'))||voices.find(v=>v.lang.includes('en')&&v.name.includes('Google'));
+    if(thVoice)u.voice=thVoice;
+    speechSynthesis.speak(u);
+  }
+}
+
+function playAudio(url){
+  audioQueue.push(url);
+  if(!isPlaying)playNext();
+}
+function playNext(){
+  if(audioQueue.length===0){isPlaying=false;return}
+  isPlaying=true;
+  const audio=new Audio(audioQueue.shift());
+  audio.onended=()=>playNext();
+  audio.onerror=()=>playNext();
+  audio.play().catch(()=>playNext());
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+if(CFG.token)startPolling();
+</script>
+</body>
+</html>
